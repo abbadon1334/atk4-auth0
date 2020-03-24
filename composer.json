@@ -1,0 +1,26 @@
+{
+  "name": "abbadon1334/atk4auth0",
+  "description": "Use Auth0 with Agile Toolkit",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Francesco Danti",
+      "email": "fdanti@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.3",
+    "auth0/auth0-php": "7.1.0",
+    "atk4/data": "2.0.2"
+  },
+  "require-dev": {
+    "atk4/schema": "2.0.2",
+    "atk4/ui": "2.0.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "atk4\\Auth0\\" : "src"
+    }
+  }
+}
