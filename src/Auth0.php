@@ -89,7 +89,7 @@ class Auth0
         }
 
         if (!is_a($this->app_user_model, Model::class, true)) {
-            throw new Exception(['definition of app_user_model is needed and be of type ' . Model::class]);
+            throw new Exception(['definition of app_user_model is needed and must be of type ' . Model::class]);
         }
 
         if (!is_a($this->auth0_fields_mapper, Auth0FieldsMapper::class, true)) {
