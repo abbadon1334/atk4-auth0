@@ -13,11 +13,16 @@ use atk4\ui\Layout\Centered;
 
 class ApplicationUser extends Model
 {
+    use \atk4\core\InitializerTrait {
+        init as _init;
+    }
+
     public $table = 'user';
 
     public function init()
     {
-        parent::init();
+        $this->_init();
+
         $this->addField('email');
     }
 }
