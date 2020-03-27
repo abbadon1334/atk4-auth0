@@ -42,7 +42,7 @@ class Auth0
      *
      * @var array
      */
-    private $auth0_config;
+    private $config;
 
     /**
      * Model used to store Auth0 user data
@@ -52,14 +52,14 @@ class Auth0
     private $auth0_user_model;
 
     /** @var Auth0FieldsMapper */
-    private $auth0_fields_mapper;
+    private $fields_mapper;
 
     /**
      * Application user model
      *
      * @var Model
      */
-    private $app_user_model;
+    private $model;
 
     /**
      * Auth0 constructor.
@@ -82,17 +82,17 @@ class Auth0
      */
     private function validateConfiguration(): void
     {
-        if (empty($this->auth0_config)) {
+        if (empty($this->config)) {
             $exc = new Exception(['definition of auth0_config is needed']);
             $exc->addSolution('you need to define the array of configuration for Auth0 service');
             throw $exc;
         }
 
-        if (!is_a($this->app_user_model, Model::class, true)) {
-            throw new Exception(['definition of app_user_model is needed and be of type ' . Model::class]);
+        if (!is_a($this->model, Model::class, true)) {
+            throw new Exception(['definition of app_user_model is needed and must be of type ' . Model::class]);
         }
 
-        if (!is_a($this->auth0_fields_mapper, Auth0FieldsMapper::class, true)) {
+        if (!is_a($this->fields_mapper, Auth0FieldsMapper::class, true)) {
             throw new Exception(['definition of auth0_fields_mapper is needed and be of type ' . Auth0FieldsMapper::class]);
         }
     }
@@ -115,7 +115,7 @@ class Auth0
      */
     private function addAppMethods(): void
     {
-        $this->app->addMethod('getAuth', function (App $app) {
+        $this->app->addMethod('getAuth0', function (App $app) {
             return $this;
         });
     }
@@ -136,15 +136,16 @@ class Auth0
 
         $callback->set(function () {
 
-            error_log(__METHOD__);
             if (!$this->isLogged()) {
                 throw new Exception(['there was an error logging in']);
             }
 
-            $this->app->hook('onAfterUserLogin', [$this->app_user_model]);
+            if (null !== $this->app->hook('onAfterUserLogin', [$this->model])) {
+                $this->app->redirect($this->config['returnTo']); // clear url
+            }
         });
 
-        if (strpos($this->auth0_config['redirect_uri'], $callback->getURL()) === false) {
+        if (strpos($this->config['redirect_uri'], $callback->getURL()) === false) {
             throw new Exception([
                 'you need to add "' . $callback->getURL() . '" at the end of your redirect_uri configuration'
             ]);
@@ -168,7 +169,7 @@ class Auth0
      */
     public function getUser(): Model
     {
-        return $this->app_user_model;
+        return $this->model;
     }
 
     /**
@@ -183,7 +184,7 @@ class Auth0
      */
     private function auth0Connect(): void
     {
-        $this->auth0 = new SDKAuth0($this->auth0_config);
+        $this->auth0 = new SDKAuth0($this->config);
 
         $user_data = $this->auth0->getUser();
 
@@ -226,21 +227,21 @@ class Auth0
      */
     private function mapApplicationUserModel(): void
     {
-        $this->app_user_model->tryLoadBy(
-            $this->auth0_fields_mapper->getMappedField('email'),
+        $this->model->tryLoadBy(
+            $this->fields_mapper->getMappedField('email'),
             $this->auth0_user_model->get('email')
         );
 
         foreach ($this->auth0_user_model->getFields() as $fieldNameAuth0 => $fieldNameUser) {
 
-            $field = $this->auth0_fields_mapper->getMappedField($fieldNameAuth0);
+            $field = $this->fields_mapper->getMappedField($fieldNameAuth0);
 
             if ($field) {
-                $this->app_user_model->set($field, $this->auth0_user_model->get($fieldNameAuth0));
+                $this->model->set($field, $this->auth0_user_model->get($fieldNameAuth0));
             }
         }
 
-        $this->app_user_model->save();
+        $this->model->save();
     }
 
     /**
@@ -251,14 +252,14 @@ class Auth0
      */
     public function logout()
     {
-        $this->app->hook('onBeforeUserLogout', [$this->app_user_model]);
+        $this->app->hook('onBeforeUserLogout', [$this->model]);
 
         $this->auth0->logout();
 
         $this->app->hook('onAfterUserLogout', []);
 
         // remote Auth0 logout
-        $logout_url = sprintf('http://%s/v2/logout?client_id=%s&returnTo=%s', $this->auth0_config['domain'], $this->auth0_config['client_id'], $this->auth0_config['returnTo']);
+        $logout_url = sprintf('http://%s/v2/logout?client_id=%s&returnTo=%s', $this->config['domain'], $this->config['client_id'], $this->config['returnTo']);
         $this->app->redirect($logout_url);
     }
 }
