@@ -57,6 +57,7 @@ class Auth0
 
     /**
      * Auth0 constructor.
+     *
      * @param array $defaults
      *
      * @throws Exception
@@ -91,7 +92,7 @@ class Auth0
         }
     }
 
-    public function init():void
+    public function init(): void
     {
         $this->_init();
 
@@ -125,7 +126,7 @@ class Auth0
         /** @var Callback $callback */
         $callback = $this->app->add([
             CallbackLater::class,
-            'short_name' => 'auth0_cb'
+            'short_name' => 'auth0_cb',
         ]);
 
         $callback->set(function () {
@@ -247,7 +248,8 @@ class Auth0
         $this->app->hook('onAfterUserLogout', []);
 
         // remote Auth0 logout
-        $logout_url = sprintf('http://%s/v2/logout?client_id=%s&returnTo=%s', $this->config['domain'], $this->config['client_id'], $this->config['returnTo']);
+        $logout_url = sprintf('http://%s/v2/logout?client_id=%s&returnTo=%s', $this->config['domain'],
+            $this->config['client_id'], $this->config['returnTo']);
         $this->app->redirect($logout_url);
     }
 }

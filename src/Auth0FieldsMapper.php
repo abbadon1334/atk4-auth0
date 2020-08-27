@@ -9,13 +9,13 @@ use atk4\core\Exception;
 class Auth0FieldsMapper
 {
     private $fields = [
-        'given_name' => null,
-        'family_name' => null,
-        'nickname' => null,
-        'picture' => null,
-        'locale' => null,
-        'updated_at' => null,
-        'email' => null,
+        'given_name'     => null,
+        'family_name'    => null,
+        'nickname'       => null,
+        'picture'        => null,
+        'locale'         => null,
+        'updated_at'     => null,
+        'email'          => null,
         'email_verified' => null,
     ];
 
@@ -24,8 +24,9 @@ class Auth0FieldsMapper
      *
      * @param string $auth0_field
      * @param string $atk_field
-     * @return $this
+     *
      * @throws Exception
+     * @return $this
      */
     public function setField(string $auth0_field, string $atk_field): self
     {
@@ -42,6 +43,7 @@ class Auth0FieldsMapper
      * Return a mapped Field by name
      *
      * @param $auth0_field
+     *
      * @return string|null
      */
     public function getMappedField($auth0_field): ?string
