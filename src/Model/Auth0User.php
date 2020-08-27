@@ -13,7 +13,7 @@ class Auth0User extends Model
 
     public $id_field = 'email';
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
