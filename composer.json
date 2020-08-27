@@ -12,11 +12,11 @@
   "require": {
     "php": ">=7.3",
     "auth0/auth0-php": "7.*",
-    "atk4/data": "2.0.*"
+    "atk4/data": "*"
   },
   "require-dev": {
-    "atk4/schema": "2.0.*",
-    "atk4/ui": "2.0.*"
+    "atk4/schema": "*",
+    "atk4/ui": "*"
   },
   "autoload": {
     "psr-4": {

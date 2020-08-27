@@ -14,6 +14,7 @@ use atk4\data\Model;
 use atk4\data\Persistence;
 use atk4\ui\App;
 use atk4\ui\Callback;
+use atk4\ui\CallbackLater;
 use atk4\ui\Exception;
 use Auth0\SDK\Auth0 as SDKAuth0;
 use Auth0\SDK\Exception\ApiException;
@@ -49,17 +50,10 @@ class Auth0
      *
      * @var Auth0User
      */
-    private $auth0_user_model;
+    private $model;
 
     /** @var Auth0FieldsMapper */
     private $fields_mapper;
-
-    /**
-     * Application user model
-     *
-     * @var Model
-     */
-    private $model;
 
     /**
      * Auth0 constructor.
@@ -97,7 +91,7 @@ class Auth0
         }
     }
 
-    public function init()
+    public function init():void
     {
         $this->_init();
 
@@ -130,8 +124,8 @@ class Auth0
     {
         /** @var Callback $callback */
         $callback = $this->app->add([
-            'CallbackLater',
-            'short_name' => 'auth0_callback'
+            CallbackLater::class,
+            'short_name' => 'auth0_cb'
         ]);
 
         $callback->set(function () {
@@ -146,9 +140,7 @@ class Auth0
         });
 
         if (strpos($this->config['redirect_uri'], $callback->getURL()) === false) {
-            throw new Exception([
-                'you need to add "' . $callback->getURL() . '" at the end of your redirect_uri configuration'
-            ]);
+            throw new Exception('you need to add "' . $callback->getURL() . '" at the end of your redirect_uri configuration');
         }
     }
 
@@ -191,9 +183,7 @@ class Auth0
         if (null === $user_data) {
 
             if (($_GET['code'] ?? null) !== null) {
-                throw new Exception([
-                    'There was an error on Login'
-                ]);
+                throw new Exception('There was an error on Login');
             }
 
             $this->login();
@@ -208,8 +198,6 @@ class Auth0
     /**
      * Call Auth0 Login
      *
-     * @throws Exception\ExitApplicationException
-     * @throws \atk4\core\Exception
      */
     private function login(): void
     {

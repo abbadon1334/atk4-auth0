@@ -19,7 +19,7 @@ class ApplicationUser extends Model
 
     public $table = 'user';
 
-    public function init()
+    public function init() :void
     {
         $this->_init();
 
@@ -27,12 +27,15 @@ class ApplicationUser extends Model
     }
 }
 
-$db = new atk4\data\Persistence\SQL('sqlite::memory:');
-Migration::getMigration(new ApplicationUser($db))->migrate();
+$persistence = new atk4\data\Persistence\Sql('sqlite::memory:');
+Migration::of(new ApplicationUser($persistence))->run();
 
 $app = new App(['title' => 'Auth0 test']);
 
-$app->initLayout(Centered::class);
+$app->initLayout([
+    Centered::class,
+    'short_name' => 'base'
+]);
 /*
 $app->addHook('onBeforeUserLogin', function(App $app) {});
 $app->addHook('onAfterUserLogin', function(App $app, ApplicationUser $user) {});
@@ -43,11 +46,11 @@ $app->addHook('onAfterUserLogout', function(App $app) {});
 $app->add([
     Auth0::class,
     [
-        'auth0_config' => [
+        'config' => [
             'domain' => AUTH0_DOMAIN,
             'client_id' => AUTH0_CLIENT_ID,
             'client_secret' => AUTH0_CLIENT_SECRET,
-            'redirect_uri' => 'https://local.auth0/index.php?atk_centered_auth0_callback=callback&__atk_callback=1',
+            'redirect_uri' => 'https://local.auth0/simple.php?atk_base_auth0_cb=callback&__atk_callback=1',
             'returnTo' => 'https://local.auth0/',
             'scope' => 'profile email',
             'persist_id_token' => true,
@@ -55,13 +58,13 @@ $app->add([
             'persist_refresh_token' => true,
             'debug' => true
         ],
-        'app_user_model' => new ApplicationUser($db),
-        'auth0_fields_mapper' => (new Auth0FieldsMapper())->setField('email', 'email')
+        'model' => new ApplicationUser($persistence),
+        'fields_mapper' => (new Auth0FieldsMapper())->setField('email', 'email')
     ]
 ]);
 
 /** @var \atk4\ui\Callback $callback */
-$callback = $app->add(['Callback']);
+$callback = $app->add('Callback');
 $callback->set(function(App $app) {
     $app->getAuth()->logout();
 }, [$app]);
