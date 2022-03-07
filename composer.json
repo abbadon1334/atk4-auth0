@@ -15,8 +15,8 @@
     "atk4/data": "2.2.0"
   },
   "require-dev": {
-    "atk4/schema": "*",
-    "atk4/ui": "*"
+    "atk4/schema": "2.3.1",
+    "atk4/ui": "3.1.0"
   },
   "autoload": {
     "psr-4": {
