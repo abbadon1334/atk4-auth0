@@ -12,7 +12,7 @@
   "require": {
     "php": ">=7.3",
     "auth0/auth0-php": "7.*",
-    "atk4/data": "2.2.0"
+    "atk4/data": "4.0.0"
   },
   "require-dev": {
     "atk4/schema": "*",
